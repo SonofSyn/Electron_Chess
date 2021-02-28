@@ -1,0 +1,28 @@
+.Page {
+    background-color: gray;
+    text-align: center;
+    min-height: max-content;
+    min-width: max-content;
+}
+
+.Game {
+    background-color: lightgrey;
+    margin:2% 5% 2% 5%;
+    min-height: 80vh;
+    min-width: max-content;
+    padding: 1% 0 1% 0;
+}
+
+.Game-Info {
+    display: inline-block;
+    background-color: lightblue;
+    min-width: 100%;
+    margin-right: 5%;
+}
+
+.Gameboard {
+    display: inline-block;
+    background-color: white;
+    min-width: 90%;
+    min-height: 90%;
+}

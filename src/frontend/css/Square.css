@@ -1,0 +1,32 @@
+.square {
+    min-width: 7vh;
+    min-height: 7vh;
+    max-width: 7vh;
+    max-height: 7vh;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 7px;
+    display: inline-block;
+}
+
+.black{
+    background-color: darkgrey;
+}
+
+.white{
+    background-color: white;
+}
+
+.axis {
+    border:1px solid white;
+}
+
+.black:hover{
+    border: 1px solid gold;
+    opacity: 0.5;
+}
+
+.white:hover{
+    border: 1px solid gold;
+    opacity: 0.5;
+}
