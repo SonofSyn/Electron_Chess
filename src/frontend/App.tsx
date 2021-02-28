@@ -35,7 +35,7 @@ export class MainAppWindow extends React.Component<Props, State> {
 
     componentDidMount() {
         ipcRenderer.send('start-up', 'ready')
-        ipcRenderer.on('start-up-reply', (event, arg: Game) => {
+        ipcRenderer.on('update', (event, arg: Game) => {
             this.setGame(arg)
         })
     }

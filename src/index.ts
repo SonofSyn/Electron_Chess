@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, ipcRenderer } from 'electron';
-import  * as chess from 'chess'
+import * as chess from 'chess'
 import { Game } from './gameInterface';
+import { Position } from './gameTypes';
+import { forEachAsync } from './async';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -28,16 +30,42 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async()=>{
+app.on('ready', async () => {
   createWindow();
   let gameId = "" + Date.now()
-  let game:Game = { gameId, turn: 0, winner: "", gameBoard: await chess.initBoard(), history: { movementLog: [], beatenLog: { white: [], black: [] } } }
-  ipcMain.on('start-up', (event, arg:Game) => {
-    console.log(arg)
-    event.reply('start-up-reply', game)
+  let game: Game = { gameId, turn: 0, winner: "", gameBoard: await chess.initBoard(), history: { movementLog: [], beatenLog: { white: [], black: [] } } }
+  ipcMain.on('start-up', (event, arg: Game) => {
+    event.reply('update', game)
   })
-  
-} );
+
+
+  ipcMain.on('tryMove', async (event, arg: string) => {
+    let pos: Position = { x: Number.parseInt(arg[0]), y: Number.parseInt(arg[1]) }
+    let tempMoves: Position[] = (await chess.determinPossibleMoves(pos, game.history.movementLog, game.gameBoard)).pos
+    let moves: Position[] = []
+    await forEachAsync(tempMoves, async move => {
+      // registers move 
+      let flag = false
+      let backup = await chess.doMove(game, game.gameBoard[(await chess.buildKey(pos))], game.gameBoard[(await chess.buildKey(move))])
+      let check = await chess.kingInCheck(game, game.gameBoard[(await chess.buildKey(move))].player)
+      // checks the position would be in check rule
+      if (check.length > 0) {
+        flag = true
+      }
+      // undo move 
+      await chess.undoMove(game.gameBoard[(await chess.buildKey(pos))], game.gameBoard[(await chess.buildKey(move))], backup)
+      // show only moves which are not in check rule
+      if (!flag) moves.push({ x: move.x, y: move.y })
+    })
+    event.reply('tryMove-reply', moves)
+  })
+
+  ipcMain.on('makeMove', async (event, arg: string[]) => {
+    game = await chess.executeMove(game, { x: Number.parseInt(arg[0][0]), y: Number.parseInt(arg[0][1]) }, { x: Number.parseInt(arg[1][0]), y: Number.parseInt(arg[1][1]) })
+    event.reply('update', game)
+  })
+
+});
 
 
 

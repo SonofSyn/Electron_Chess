@@ -17,6 +17,10 @@
     background-color: white;
 }
 
+.green{
+    background-color: green;
+}
+
 .axis {
     border:1px solid white;
 }

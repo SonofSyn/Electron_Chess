@@ -8,6 +8,7 @@ interface Props {
 
 interface State {
     game: Game
+    message: string
 }
 
 export class Page extends React.Component<Props, State> {
@@ -17,7 +18,10 @@ export class Page extends React.Component<Props, State> {
         this.state = Page.createState(props)
     }
     static createState(props: Props): State {
-        return { game: props.game }
+        return {
+            game: props.game,
+            message: ""
+        }
     }
 
     static getDerivedStateFromProps(props: Props, state: State): State | null {
@@ -32,7 +36,8 @@ export class Page extends React.Component<Props, State> {
                 <div className="Game">
                     <p>Game</p>
                     <div className="Game-Info">
-                        <p>Info Zug: {this.state.game.turn+1}</p>
+                        <p>Info <br></br> Zug: {this.state.game.turn + 1} <br></br> Am Zug: {(this.state.game.turn + 1) % 2 === 0 ? "Schwarz" : "Weiß"}</p>
+                        {this.state.game.winner !== "" ? "Der Sieger ist " + this.state.game.winner : ""}
                     </div>
                     <div className="Gameboard">
                         <Board board={this.state.game.gameBoard} turn={this.state.game.turn}></Board>

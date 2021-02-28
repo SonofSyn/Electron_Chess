@@ -2,15 +2,18 @@ import React from "react";
 import '../css/Board.css';
 import '../css/Square.css';
 import { Square } from "./Square";
-import { BoardHash } from "../interface";
+import { BoardHash, Position } from "../interface";
+import { ipcRenderer } from "electron";
 interface Props {
     turn: number,
-    board: BoardHash
+    board: BoardHash,
 }
 
 interface State {
-    turn: number
-    board: BoardHash
+    turn: number,
+    board: BoardHash,
+    possibleMoves: Position[],
+    currentPos: string
 }
 
 export class Board extends React.Component<Props, State> {
@@ -22,28 +25,59 @@ export class Board extends React.Component<Props, State> {
     static createState(props: Props): State {
         return {
             turn: props.turn,
-            board: props.board
+            board: props.board,
+            possibleMoves: [],
+            currentPos: ""
         }
     }
-
+    componentDidMount() {
+        ipcRenderer.on('tryMove-reply', (event, arg: Position[]) => {
+            this.setState({ possibleMoves: arg })
+        })
+    }
     static getDerivedStateFromProps(props: Props, state: State): State | null {
         if (state.turn === props.turn) return null
         return Board.createState(props)
     }
     onClick = (st: string) => {
+        let makeMoveFlag: boolean = false
+        let turnPlayer = (this.state.turn % 2 === 0 ? "weiss" : "schwarz")
+        if (Number.parseInt(st) < 10 || Number.parseInt(st) > 88) return () => { }
+        if (this.state.board[st] !== undefined) {
+            if (turnPlayer !== this.state.board[st].player) {
+                if (this.state.possibleMoves !== []) {
+                    this.state.possibleMoves.forEach(move => {
+                        if (st === move.x + "" + move.y) {
+                            makeMoveFlag = true
+                        }
+                    })
+                } else return () => { }
+                if (!makeMoveFlag) return () => { }
+            }
+
+        }
         return (
             () => {
-                console.log("Hallo hier ist " + st)
+                if (makeMoveFlag) ipcRenderer.send('makeMove', [this.state.currentPos, st])
+                else {
+                    this.setState({ currentPos: st })
+                    ipcRenderer.send('tryMove', st)
+                }
             }
         )
     }
     renderSquare = (content: string, pos: string, color: string): JSX.Element => {
+        let highlightFlag = false
+        if (this.state.possibleMoves !== []) {
+            this.state.possibleMoves.forEach(move => {
+                if (pos === move.x + "" + move.y) highlightFlag = true
+            })
+        }
         return (
-            <Square content={content} pos={pos} color={color} onClick={this.onClick} key={pos + content} />
+            <Square content={content} pos={pos} color={color} onClick={this.onClick} key={pos + content} highlight={highlightFlag} />
         )
     }
     createBoard = (): JSX.Element[] => {
-        console.log(this.state.board)
         let board: JSX.Element[] = []
         let start: number | undefined
         if (this.state.board === undefined) return (board)
