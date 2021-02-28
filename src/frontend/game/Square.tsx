@@ -7,9 +7,13 @@ interface Props {
 }
 
 export let Square = (props: Props): JSX.Element => {
+
+    let click = props.onClick(props.pos)
+    if (Number.parseInt(props.pos) < 10 || Number.parseInt(props.pos) > 88) click = () => { }
     return (
-        <div className={"square" + " " + props.pos + " " + props.color} id={props.pos} onClick={props.onClick(props.pos)} >
-            <h1>{props.content}</h1>
+
+        <div className={"square" + " " + props.pos + " " + props.color} id={props.pos} onClick={click} key={"square" + props.pos}>
+            <h1 key={"con" + props.pos}>{props.content}</h1>
         </div>
     )
 }

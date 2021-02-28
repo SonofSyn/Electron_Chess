@@ -1,4 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, ipcRenderer } from 'electron';
+import  * as chess from 'chess'
+import { Game } from './gameInterface';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -26,7 +28,18 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', async()=>{
+  createWindow();
+  let gameId = "" + Date.now()
+  let game:Game = { gameId, turn: 0, winner: "", gameBoard: await chess.initBoard(), history: { movementLog: [], beatenLog: { white: [], black: [] } } }
+  ipcMain.on('start-up', (event, arg:Game) => {
+    console.log(arg)
+    event.reply('start-up-reply', game)
+  })
+  
+} );
+
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

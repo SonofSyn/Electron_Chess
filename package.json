@@ -1,6 +1,6 @@
 {
-  "name": "chess",
-  "productName": "chess",
+  "name": "electron-chess",
+  "productName": "electron-chess",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "chess"
+            "name": "electron-chess"
           }
         },
         {
@@ -85,6 +85,7 @@
     "typescript": "^4.2.2"
   },
   "dependencies": {
+    "chess": "file:packages/chess-1.0.0.tgz",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
